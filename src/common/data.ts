@@ -13,3 +13,7 @@ export const doAnotherThing = () => {
 export const doYetAnotherThing = () => {
   console.log('Doing yet another thing...');
 };
+
+export const doFinalThing = () => {
+  console.log('Doing the final thing...');
+};
