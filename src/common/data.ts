@@ -5,3 +5,7 @@ export const doSomething = () => {
 export const doSomethingElse = () => {
   console.log('Doing something else...');
 };
+
+export const doAnotherThing = () => {
+  console.log('Doing another thing...');
+};
