@@ -1,0 +1,56 @@
+name: sde-common-lib:03:PR Merge & Version Increment
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+
+jobs:
+  increment-version-and-tag:
+    if: ${{ github.event.pull_request.merged == true }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # This permission is required to push commits and tags
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+      
+      - id: determine-update-type      
+        name: Check for 'major'|'minor'|'patch' label
+        run: |
+          PR_LABELS="${{ toJson(github.event.pull_request.labels.*.name) }}"
+          if [[ $PR_LABELS == *\"patch\"* ]]; then
+            echo "UPDATE_TYPE=patch" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          if [[ $PR_LABELS == *\"major\"* ]]; then
+            echo "UPDATE_TYPE=major" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          echo "UPDATE_TYPE=minor" >> $GITHUB_OUTPUT # Default to minor if no specific label is found
+
+      - name: Configure Git User
+        run: |
+          git config --global user.email "svc-github-neutrino@collegeboard.org"
+          git config --global user.name "Github SC Bot"
+      
+      - name: Update Version Numbers with npm
+        run: |
+          # Use the determined version level to bump the version
+          # `npm version` will automatically create a commit and a git tag
+          npm version ${{ steps.determine-update-type.outputs.UPDATE_TYPE }} -m "Release: Version %s [skip ci]"
+
+      - name: Push new commit and tag
+        run: |
+          git push origin main --follow-tags

@@ -1,0 +1,51 @@
+{
+  "name": "testing-automations",
+  "version": "1.0.0",
+  "description": "Automation Workflow Testing",
+  "author": "Sky Bos",
+  "main": "./build/cjs/index.js",
+  "module": "./build/esm/index.js",
+  "types": "./build/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./build/esm/index.js",
+      "require": "./build/cjs/index.js",
+      "types": "./build/types/index.d.ts"
+    }
+  },
+  "files": ["src/", "build/", "tsconfig.json"],
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:schuylerbos/automation-testing.git"
+  },
+  "scripts": {
+    "clean": "rm -rf build",
+    "build": "npm run clean && npm run build:module && npm run build:cjs && npm run build:types",
+    "build:module": "tsc -p ./configs/tsconfig.esm.json",
+    "build:cjs": "tsc -p ./configs/tsconfig.cjs.json",
+    "build:types": "tsc -p ./configs/tsconfig.types.json",
+    "tag:current": "git tag $(node -p \"require('./package.json').version\")",
+    "tag:push": "git push origin $(node -p \"require('./package.json').version\")",
+    "version:update": "npm version ${npm_config_type:-minor} --no-git-tag-version && npx @biomejs/biome format --write package.json && git add package.json package-lock.json && git commit -m \"⬆️ Updating version\"",
+    "version:dev": "npm version pre${npm_config_type:-release} --preid=${npm_config_tag:-dev} --no-git-tag-version && npx @biomejs/biome format --write package.json",
+    "publish:dev": "npm run version:dev --type=${npm_config_type:-release} --tag=${npm_config_tag:-dev} && npm run build && npm publish --tag ${npm_config_tag:-dev}",
+    "publish:github": "npm run tag:current && npm run tag:push",
+    "doc": "node ./node_modules/.bin/jsdoc -c jsdoc.json",
+    "test": "c8 mocha",
+    "test-less": "c8 mocha | less -R +F",
+    "lint": "npx @biomejs/biome@1.9.4 check .",
+    "lint-fix": "npx @biomejs/biome check --write .",
+    "format": "npx @biomejs/biome format --write ."
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "mocha": "^10.2.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  },
+  "license": "LicenseRef-LICENSE"
+}
