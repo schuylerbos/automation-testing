@@ -9,3 +9,7 @@ export const doSomethingElse = () => {
 export const doAnotherThing = () => {
   console.log('Doing another thing...');
 };
+
+export const doYetAnotherThing = () => {
+  console.log('Doing yet another thing...');
+};
